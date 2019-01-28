@@ -17,13 +17,13 @@ func MakeRequest(requestContents string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	log.Println(string(body))
+	// log.Println(resp)
+	log.Println("Body back :\n", string(body))
 }
 
 // func main() {

@@ -31,6 +31,7 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("createTicketCalled")
 }
 func GetTickets(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, " ", "Hello World")
 	fmt.Println("getTicketsCalled")
 }
 func GetTicket(w http.ResponseWriter, r *http.Request) {
