@@ -11,8 +11,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//variables
+const numOfValues = 3
+
+var existingTickets []Ticket
+
 //Main runner
 func main() {
+	//Test ticket
+	testTicket := generateTicket()
+	testTicket.ID = 12345678
+	existingTickets = append(existingTickets, testTicket)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/ticket", CreateTicket).Methods("POST")
 	router.HandleFunc("/ticket", GetTickets).Methods("GET")
@@ -23,11 +33,6 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
-
-//variables
-const numOfValues = 3
-
-var existingTickets []Ticket
 
 //Methods
 
@@ -44,9 +49,11 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 func GetTickets(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("getTicketsCalled")
 
-	ticketList := make([]int, len(existingTickets))
-	for _, value := range existingTickets {
-		ticketList = append(ticketList, value.ID)
+	var ticketList []int
+	if existingTickets != nil {
+		for _, value := range existingTickets {
+			ticketList = append(ticketList, value.ID)
+		}
 	}
 
 	json.NewEncoder(w).Encode(ticketList)
