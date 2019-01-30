@@ -11,8 +11,8 @@ import (
 
 func main() {
 	// MakeRequest("POST", "ticket", nil)
-	MakeRequest("GET", "ticket", nil)
-	// MakeRequest("GET", "ticket", map[string]string{"ID": "12345678"})
+	// MakeRequest("GET", "ticket", nil)
+	MakeRequest("GET", "ticket", map[string]string{"ID": "12345678"})
 }
 
 func MakeRequest(requestType string, requestContents string, additionalInformation map[string]string) {

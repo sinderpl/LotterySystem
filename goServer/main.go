@@ -25,7 +25,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ticket", CreateTicket).Methods("POST")
-	router.HandleFunc("/ticket", GetTickets).Methods("GET")
+	router.HandleFunc("/ticket", GetTickets).Methods("GET")        //can this be merged with retrieve all
 	router.HandleFunc("/ticket/{id}", GetTicket).Methods("GET")    // add method to retrieve multiple tickets by id
 	router.HandleFunc("/ticket/{id}", UpdateTicket).Methods("PUT") // add n for number of lines
 	router.HandleFunc("/status/{id}", GetTicketStatus).Methods("PUT")
@@ -103,7 +103,3 @@ type Line struct {
 	ID     int   `json:"id,omitempty"`
 	Values []int `json:"values,omitempty"`
 }
-
-// var tickets []Ticket
-
-// tickets = append(tickets, Ticket{ID:"1"})
