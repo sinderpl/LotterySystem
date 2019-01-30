@@ -2,6 +2,7 @@ package main
 
 import (
 	// "encoding/json"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -26,16 +27,36 @@ func main() {
 //variables
 const numOfValues = 3
 
+var existingTickets []Ticket
+
 //Methods
+
+//Generates a new ticket with single line and returns ID to user
 func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("createTicketCalled")
+
+	ticket := generateTicket()
+	existingTickets = append(existingTickets, ticket)
+	json.NewEncoder(w).Encode(ticket.ID)
 }
+
+//Returns all ticket ID's
 func GetTickets(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, " ", "Hello World")
 	fmt.Println("getTicketsCalled")
+
+	ticketList := make([]int, len(existingTickets))
+	for _, value := range existingTickets {
+		ticketList = append(ticketList, value.ID)
+	}
+
+	json.NewEncoder(w).Encode(ticketList)
 }
+
+//Return the specified ticket
 func GetTicket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("getTicketCalled")
+
+	fmt.Println(r.GetBody())
 }
 func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("updateTicket")
@@ -66,8 +87,9 @@ func calculateResult() {
 
 //Structs
 type Ticket struct {
-	ID    int    `json:"id,omitempty"`
-	Lines []Line `json:"Lines,omitempty"`
+	ID        int    `json:"id,omitempty"`
+	Lines     []Line `json:"Lines,omitempty"`
+	IsChecked bool   `json:"IsChecked,omitempty"`
 }
 
 type Line struct {

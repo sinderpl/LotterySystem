@@ -25,7 +25,3 @@ func MakeRequest(requestContents string) {
 	// log.Println(resp)
 	log.Println("Body back :\n", string(body))
 }
-
-// func main() {
-
-// }
