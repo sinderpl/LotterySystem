@@ -10,32 +10,34 @@ import (
 )
 
 func main() {
-	// MakeRequest("POST", "ticket", nil)
-	// MakeRequest("GET", "ticket", nil)
-	MakeRequest("GET", "ticket", map[string]string{"ID": "12345678"})
+	// MakeRequest("POST", "ticket")
+	// MakeRequest("GET", "ticket")
+	MakeRequest("PUT", "ticket/12345678")
+	MakeRequest("PUT", "status/12345678")
+	// MakeRequest("GET", "ticket/12345678")
 }
 
-func MakeRequest(requestType string, requestContents string, additionalInformation map[string]string) {
+func MakeRequest(requestType string, requestContents string) {
 	requestContents = "http://localhost:8080/" + requestContents
 	fmt.Println(requestContents)
 
-	//Populate body of request if necessary
-	requestData := url.Values{}
-	if additionalInformation != nil {
-		for key, value := range additionalInformation {
-			requestData.Set(key, value)
-		}
-	}
+	// //Populate body of request if necessary
+	// requestData := url.Values{}
+	// if additionalInformation != nil {
+	// 	for key, value := range additionalInformation {
+	// 		requestData.Set(key, value)
+	// 	}
+	// }
 	client := &http.Client{}
-	req, err := http.NewRequest(requestType, requestContents, strings.NewReader(requestData.Encode()))
+	req, err := http.NewRequest(requestType, requestContents, strings.NewReader((url.Values{}).Encode()))
 	if err != nil {
 		log.Fatalln("Error while creating request", err)
 	}
-	fmt.Println("Request: ")
-	fmt.Println(req)
+	// fmt.Println("Request: ")
+	// fmt.Println(req)
 	resp, err := client.Do(req)
-	fmt.Println("Response: ")
-	fmt.Println(resp)
+	// fmt.Println("Response: ")
+	// fmt.Println(resp)
 	if err != nil {
 		log.Fatalln("Error while executing request", err)
 	}
