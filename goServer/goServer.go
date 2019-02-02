@@ -49,7 +49,7 @@ func main() {
 	router.HandleFunc("/ticket", CreateTicket).Methods(POST)
 	router.HandleFunc("/ticket", GetTickets).Methods(GET)
 	router.HandleFunc("/ticket/{id}", GetTicket).Methods(GET)
-	router.HandleFunc("/ticket/{id}", UpdateTicket).Methods(PUT)
+	router.HandleFunc("/ticket/{id}/{lines}", UpdateTicket).Methods(PUT)
 	router.HandleFunc("/status/{id}", GetTicketStatus).Methods(PUT)
 
 	log.Fatal(http.ListenAndServe(SERVER_PORT, router))
@@ -64,21 +64,19 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	ticket := generateTicket()
 	existingTickets = append(existingTickets, ticket)
 
-	json.NewEncoder(w).Encode([...]Ticket{Ticket{ID: ticket.ID}})
+	json.NewEncoder(w).Encode([...]Ticket{ticket})
 }
 
-//Returns all ticket ID's
+//Returns all tickets
 func GetTickets(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get tickets called")
 
-	var ticketList []Ticket
-	if existingTickets != nil {
-		for _, value := range existingTickets {
-			ticketList = append(ticketList, Ticket{ID: value.ID})
-		}
+	if existingTickets == nil {
+		json.NewEncoder(w).Encode(EMPTY_TICKET)
+	} else {
+		json.NewEncoder(w).Encode(existingTickets)
 	}
 
-	json.NewEncoder(w).Encode(ticketList)
 }
 
 //Return the specified ticket
@@ -92,6 +90,7 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 		// w.Write([]byte("Ticket does not exist"))
 		json.NewEncoder(w).Encode(EMPTY_TICKET)
 	} else {
+		fmt.Println(ticket)
 		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 	}
 }
@@ -101,6 +100,8 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Update ticket called")
 	parameters := mux.Vars(r)
 	ticketID := parameters["id"]
+	linesString := parameters["lines"]
+	lineNum, err := strconv.Atoi(linesString)
 	ticket := findTicket(ticketID)
 	if ticket == nil {
 		// w.WriteHeader(http.StatusInternalServerError)
@@ -112,8 +113,10 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 			// w.Write([]byte("Ticket status has been checked, no changes can be made"))
 			json.NewEncoder(w).Encode(EMPTY_TICKET)
 		} else {
-			ticket.Lines = append(ticket.Lines, generateTicketLine())
-			json.NewEncoder(w).Encode(([...]Ticket{Ticket{ID: ticket.ID}}))
+			for x := 1; x <= lineNum; x++ {
+				ticket.Lines = append(ticket.Lines, generateTicketLine())
+			}
+			json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 		}
 	}
 }
