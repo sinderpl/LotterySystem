@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "encoding/json"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,14 +14,26 @@ import (
 )
 
 //variables
-const numOfValues = 3
+const (
+	NUM_VALUES  = 3
+	SERVER_PORT = ":8080"
+	PUT         = "PUT"
+	POST        = "POST"
+	GET         = "GET"
+	DELETE      = "DELETE"
+)
 
-// Move to DB if have enough time
+// Move to DB if I have enough time
 var existingTickets []Ticket
+
+//For empty ticket returns
+var emptyLines []Line
+
+// EMPTY_LINE = Line{ID: "", Result: 0}
+var EMPTY_TICKET = make([]Ticket, 1)
 
 //Main runner
 func main() {
-
 	//Randomise functions are seeded with current time
 	//to guarantee randomness
 	rand.Seed(time.Now().UnixNano())
@@ -35,34 +46,35 @@ func main() {
 	existingTickets = append(existingTickets, testTicket)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/ticket", CreateTicket).Methods("POST")
-	router.HandleFunc("/ticket", GetTickets).Methods("GET")        //can this be merged with retrieve all
-	router.HandleFunc("/ticket/{id}", GetTicket).Methods("GET")    // add method to retrieve multiple tickets by id
-	router.HandleFunc("/ticket/{id}", UpdateTicket).Methods("PUT") // add n for number of lines
-	router.HandleFunc("/status/{id}", GetTicketStatus).Methods("PUT")
+	router.HandleFunc("/ticket", CreateTicket).Methods(POST)
+	router.HandleFunc("/ticket", GetTickets).Methods(GET)
+	router.HandleFunc("/ticket/{id}", GetTicket).Methods(GET)
+	router.HandleFunc("/ticket/{id}", UpdateTicket).Methods(PUT)
+	router.HandleFunc("/status/{id}", GetTicketStatus).Methods(PUT)
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(SERVER_PORT, router))
 }
 
-//Methods
+//Public Methods
 
 //Generates a new ticket with single line and returns ID to user
 func CreateTicket(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Create tickets called")
+	fmt.Println("Create ticket called")
 
 	ticket := generateTicket()
 	existingTickets = append(existingTickets, ticket)
-	json.NewEncoder(w).Encode(ticket.ID)
+
+	json.NewEncoder(w).Encode([...]Ticket{Ticket{ID: ticket.ID}})
 }
 
 //Returns all ticket ID's
 func GetTickets(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get tickets called")
 
-	var ticketList []string
+	var ticketList []Ticket
 	if existingTickets != nil {
 		for _, value := range existingTickets {
-			ticketList = append(ticketList, value.ID)
+			ticketList = append(ticketList, Ticket{ID: value.ID})
 		}
 	}
 
@@ -76,10 +88,11 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ticket does not exist"))
+		// w.WriteHeader(http.StatusInternalServerError)
+		// w.Write([]byte("Ticket does not exist"))
+		json.NewEncoder(w).Encode(EMPTY_TICKET)
 	} else {
-		json.NewEncoder(w).Encode(ticket)
+		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 	}
 }
 
@@ -90,15 +103,17 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ticket does not exist"))
+		// w.WriteHeader(http.StatusInternalServerError)
+		// w.Write([]byte("Ticket does not exist"))
+		json.NewEncoder(w).Encode(EMPTY_TICKET)
 	} else {
 		if ticket.IsChecked == true {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Ticket status has been checked, no changes can be made"))
+			// w.WriteHeader(http.StatusInternalServerError)
+			// w.Write([]byte("Ticket status has been checked, no changes can be made"))
+			json.NewEncoder(w).Encode(EMPTY_TICKET)
 		} else {
 			ticket.Lines = append(ticket.Lines, generateTicketLine())
-			json.NewEncoder(w).Encode(ticket.ID)
+			json.NewEncoder(w).Encode(([...]Ticket{Ticket{ID: ticket.ID}}))
 		}
 	}
 }
@@ -110,27 +125,24 @@ func GetTicketStatus(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Ticket does not exist"))
+		// w.WriteHeader(http.StatusInternalServerError)
+		// w.Write([]byte("Ticket does not exist"))
+		json.NewEncoder(w).Encode(EMPTY_TICKET)
 	} else {
-		if ticket.IsChecked {
-			w.Write([]byte("Ticket already checked"))
-		} else {
-			ticket.IsChecked = true
-
-			//Calculat results
-			for index, value := range ticket.Lines {
-				result := calculateLineResult(value)
-				ticket.Lines[index].Result = &result
-				fmt.Println("line result check : ", ticket.Lines[index])
-			}
-			sort.Sort(ByResult(ticket.Lines))
+		//Calculate results
+		for index, value := range ticket.Lines {
+			result := calculateLineResult(value)
+			ticket.Lines[index].Result = &result
 		}
-		json.NewEncoder(w).Encode(ticket)
+		sort.Sort(ByResult(ticket.Lines))
+		ticket.IsChecked = true
+		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 	}
 }
 
 //Private methods
+
+//Generates and returns a new ticket
 func generateTicket() Ticket {
 	lines := make([]Line, 1)
 	lines[0] = generateTicketLine()
@@ -138,8 +150,9 @@ func generateTicket() Ticket {
 	return newTicket
 }
 
+//Generate and returns a new ticket line with randomised values
 func generateTicketLine() Line {
-	values := make([]int, numOfValues)
+	values := make([]int, NUM_VALUES)
 	for index, _ := range values {
 		values[index] = rand.Intn(3) // 0 - 2 inclusive
 	}
@@ -147,6 +160,7 @@ func generateTicketLine() Line {
 	return newLine
 }
 
+//Looks for the ticket and returns if found
 func findTicket(ticketID string) *Ticket {
 	var ticket *Ticket
 	for index, _ := range existingTickets {
@@ -196,17 +210,17 @@ func calculateLineResult(line Line) int {
 	}
 }
 
-//Structs
+//Objects
 type Ticket struct {
 	ID        string `json:"id,omitempty"`
-	Lines     []Line `json:"Lines,omitempty"`
-	IsChecked bool   `json:"IsChecked,omitempty"`
+	Lines     []Line `json:"lines,omitempty"`
+	IsChecked bool   `json:"isChecked,omitempty"`
 }
 
 type Line struct {
 	ID     string `json:"id,omitempty"`
 	Values []int  `json:"values,omitempty"`
-	Result *int   `json:"Result,omitempty"`
+	Result *int   `json:"result,omitempty"`
 }
 
 //Sorter
