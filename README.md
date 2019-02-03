@@ -18,11 +18,11 @@ Result for lines are :
 3. Run "./goClient/goClient.exe" to get the text based UI for using the interface
 
 # API Methods
-    1.(POST) -  "/ticket" - Creates a new ticket
-    1.(GET) -  "/ticket" -  Retrieves all tickets
-    1.(GET) -  "/ticket/{id}" - Retrieves a single ticket using the ID
-    1.(PUT) -  "/ticket/{id}/{lines}" - Adds specified amount of lines to the ticket with the ID
-    1.(PUT) -  "/status/{id}" - Checks the status of the ticket by ID  
+1.(POST) -  "/ticket" - Creates a new ticket
+2.(GET) -  "/ticket" -  Retrieves all tickets
+3.(GET) -  "/ticket/{id}" - Retrieves a single ticket using the ID
+4.(PUT) -  "/ticket/{id}/{lines}" - Adds specified amount of lines to the ticket with the ID
+5.(PUT) -  "/status/{id}" - Checks the status of the ticket by ID  
 
 # Testing
 A base ticket ID : 1234567 is already provided in the code to check any functions required
