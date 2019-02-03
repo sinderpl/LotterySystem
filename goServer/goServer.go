@@ -26,12 +26,6 @@ const (
 // Move to DB if I have enough time
 var existingTickets []Ticket
 
-//For empty ticket returns
-var emptyLines []Line
-
-// EMPTY_LINE = Line{ID: "", Result: 0}
-var EMPTY_TICKET = make([]Ticket, 1)
-
 //Main runner
 func main() {
 	//Randomise functions are seeded with current time
@@ -72,7 +66,9 @@ func GetTickets(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get tickets called")
 
 	if existingTickets == nil {
-		json.NewEncoder(w).Encode(EMPTY_TICKET)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Ticket does not exist"))
+		return
 	} else {
 		json.NewEncoder(w).Encode(existingTickets)
 	}
@@ -86,11 +82,10 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		// w.WriteHeader(http.StatusInternalServerError)
-		// w.Write([]byte("Ticket does not exist"))
-		json.NewEncoder(w).Encode(EMPTY_TICKET)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Ticket does not exist"))
+		return
 	} else {
-		fmt.Println(ticket)
 		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 	}
 }
@@ -102,16 +97,21 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	linesString := parameters["lines"]
 	lineNum, err := strconv.Atoi(linesString)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Invalid amount of lines"))
+		return
+	}
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		// w.WriteHeader(http.StatusInternalServerError)
-		// w.Write([]byte("Ticket does not exist"))
-		json.NewEncoder(w).Encode(EMPTY_TICKET)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Ticket does not exist"))
+		return
 	} else {
 		if ticket.IsChecked == true {
-			// w.WriteHeader(http.StatusInternalServerError)
-			// w.Write([]byte("Ticket status has been checked, no changes can be made"))
-			json.NewEncoder(w).Encode(EMPTY_TICKET)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Ticket status has been checked, no changes can be made"))
+			return
 		} else {
 			for x := 1; x <= lineNum; x++ {
 				ticket.Lines = append(ticket.Lines, generateTicketLine())
@@ -128,14 +128,14 @@ func GetTicketStatus(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		// w.WriteHeader(http.StatusInternalServerError)
-		// w.Write([]byte("Ticket does not exist"))
-		json.NewEncoder(w).Encode(EMPTY_TICKET)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Ticket does not exist"))
+		return
 	} else {
 		//Calculate results
 		for index, value := range ticket.Lines {
 			result := calculateLineResult(value)
-			ticket.Lines[index].Result = &result
+			ticket.Lines[index].Result = result
 		}
 		sort.Sort(ByResult(ticket.Lines))
 		ticket.IsChecked = true
@@ -223,7 +223,7 @@ type Ticket struct {
 type Line struct {
 	ID     string `json:"id,omitempty"`
 	Values []int  `json:"values,omitempty"`
-	Result *int   `json:"result,omitempty"`
+	Result int    `json:"result,omitempty"`
 }
 
 //Sorter
@@ -233,7 +233,7 @@ func (p ByResult) Len() int {
 	return len(p)
 }
 func (p ByResult) Less(i, j int) bool {
-	return *p[i].Result > *p[j].Result
+	return p[i].Result > p[j].Result
 }
 func (p ByResult) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
