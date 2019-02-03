@@ -9,7 +9,7 @@ You can append lines to the ticket until its status has been checked.
 Result for lines are :
 - 10 pts - The sum of all numbers is 2 (0,1,1)
 - 5 pts - If all numbers are the same (0,0,0)
-- pt -- If the 2nd and 3rd number are different from 1st (0,2,2)
+- pt - If the 2nd and 3rd number are different from 1st (0,2,2)
 -0 pt - All other lines (0,1,0)
 
 # Running Instructions
