@@ -24,5 +24,3 @@ Result for lines are :
 4. (PUT) -  "/ticket/{id}/{lines}" - Adds specified amount of lines to the ticket with the ID
 5. (PUT) -  "/status/{id}" - Checks the status of the ticket by ID  
 
-# Testing
-A base ticket ID : 1234567 is already provided in the code to check any functions required

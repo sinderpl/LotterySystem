@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"bufio"
@@ -61,7 +61,7 @@ func main() {
 
 func createNewTicket() {
 	fmt.Println("Creating new ticket")
-	ticket := MakeRequest(POST, serverLocation+"ticket") // Create new ticket
+	ticket := makeRequest(POST, serverLocation+"ticket") // Create new ticket
 	if len(ticket) >= 1 {
 		fmt.Println("Ticket created, ID : ", ticket[0].ID)
 	}
@@ -69,7 +69,7 @@ func createNewTicket() {
 
 func getAllTickets() {
 	fmt.Println("Creating new ticket")
-	ticket := MakeRequest(GET, serverLocation+"ticket") //Return all ticket id's
+	ticket := makeRequest(GET, serverLocation+"ticket") //Return all ticket id's
 	if len(ticket) >= 1 {
 		fmt.Println("The following are current ticket ID's : ")
 		for index, value := range ticket {
@@ -82,7 +82,7 @@ func getSingleTicket() {
 	fmt.Println("Enter ticket number: ")
 	ticketNumber, _ := reader.ReadString('\n')
 	ticketNumber = strings.TrimRight(ticketNumber, "\n")
-	ticket := MakeRequest(GET, serverLocation+"ticket/"+ticketNumber) // Get ticket
+	ticket := makeRequest(GET, serverLocation+"ticket/"+ticketNumber) // Get ticket
 	if len(ticket) >= 1 {
 		fmt.Println("Ticket found :")
 		printTickets(ticket)
@@ -96,7 +96,7 @@ func addLinesToTicket() {
 	fmt.Println("How many lines:")
 	numLines, _ := reader.ReadString('\n')
 	numLines = strings.TrimRight(numLines, "\n")
-	ticket := MakeRequest(PUT, serverLocation+"ticket/"+ticketNumber+"/"+numLines) // Add ticket line
+	ticket := makeRequest(PUT, serverLocation+"ticket/"+ticketNumber+"/"+numLines) // Add ticket line
 	if len(ticket) >= 1 {
 		fmt.Println("Ticket found, lines added. Ticket ID :", ticket[0].ID)
 	}
@@ -106,7 +106,7 @@ func checkTicketStatus() {
 	fmt.Println("Enter ticket number: ")
 	ticketNumber, _ := reader.ReadString('\n')
 	ticketNumber = strings.TrimRight(ticketNumber, "\n")
-	ticket := MakeRequest(PUT, serverLocation+"status/"+ticketNumber) //Calculate result and retrieve ticket
+	ticket := makeRequest(PUT, serverLocation+"status/"+ticketNumber) //Calculate result and retrieve ticket
 	if len(ticket) >= 1 {
 		fmt.Println("Ticket found, results calculated.")
 		printTickets(ticket)
@@ -129,7 +129,7 @@ func printLines(lines []Line) {
 	}
 }
 
-func MakeRequest(requestType string, requestContents string) []Ticket {
+func makeRequest(requestType string, requestContents string) []Ticket {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest(requestType, requestContents, strings.NewReader((url.Values{}).Encode()))
