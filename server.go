@@ -48,7 +48,6 @@ func main() {
 	testTicket.Lines = append(testTicket.Lines, Line{ID: strconv.Itoa(rand.Intn(999999)), Values: values})
 	existingTickets = append(existingTickets, testTicket)
 	server = startServer()
-	// log.Fatal(http.ListenAndServe(SERVER_PORT, router))
 }
 
 func startServer() *http.Server {
