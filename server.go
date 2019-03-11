@@ -14,6 +14,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//TODO
+//Remove comments
+//Change error status
+//Empty is valid return
+//Stop checking results each call
+//The tickets can never be empty
+
 //variables
 const (
 	NUM_VALUES  = 3
@@ -56,9 +63,9 @@ func startServer() *http.Server {
 	srv := &http.Server{
 		Addr: SERVER_PORT,
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: time.Second * 2,
+		ReadTimeout:  time.Second * 2,
+		IdleTimeout:  time.Second * 4,
 		Handler:      router, // Pass our instance of gorilla/mux in.
 	}
 	if err := srv.ListenAndServe(); err != nil {
@@ -94,7 +101,7 @@ func GetTickets(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get tickets called")
 
 	if existingTickets == nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Ticket does not exist"))
 		return
 	} else {
@@ -160,13 +167,15 @@ func GetTicketStatus(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Ticket does not exist"))
 		return
 	} else {
-		//Calculate results
-		for index, value := range ticket.Lines {
-			result := calculateLineResult(value)
-			ticket.Lines[index].Result = result
+		if !ticket.IsChecked {
+			//Calculate results
+			for index, value := range ticket.Lines {
+				result := calculateLineResult(value)
+				ticket.Lines[index].Result = result
+			}
+			sort.Sort(ByResult(ticket.Lines))
+			ticket.IsChecked = true
 		}
-		sort.Sort(ByResult(ticket.Lines))
-		ticket.IsChecked = true
 		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
 	}
 }
@@ -208,26 +217,15 @@ func calculateLineResult(line Line) int {
 	areSame := true
 	areTrailingUnique := true
 	total := line.Values[0]
-	//We begin the checks at the first value
-	// for comparison checks
 	firstValue := line.Values[0]
 
-	// This can be calculated in a single array pass O(n)
-	// By checking different situations and then ,
-	// starting checks on highest value outcome first
 	for x := 1; x < len(line.Values); x++ {
-		//If total is 2 = 10pts
 		total += line.Values[x]
-		//If any values are different than the initial one
-		// We can discard the possibility of the 5 pts outcome
 		if line.Values[x] != firstValue {
 			areSame = false
 		} else {
-			// If either 2nd or 3rd value are the same as first
-			//we discard the 1 pt outcome
 			areTrailingUnique = false
 		}
-		//If all these checks fail the 0pt outcome is applied
 	}
 
 	if total == 2 {
