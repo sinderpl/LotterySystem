@@ -1,61 +1,56 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// const myfirstelement = <h1>Lottery System</h1>
-// ReactDOM.render(myfirstelement, document.getElementById('root'));
-
-// const formElement = (
-//                     <div>
-//                         <h1>Lottery System</h1>
-//                         <form onSubmit = {checkTicket}>
-//                             <label>Ticket Number:</label>
-//                             <input type="text" id="lname" name="lname"></input>
-//                             <input type="submit" value="Submit"></input>
-//                         </form> 
-//                     </div>)
-
-// ReactDOM.render(formElement, document.getElementById('root'));
-
-
-
 class App extends React.Component {
-  
+
   constructor(props) {
     super(props);
-        
-    this.ticket = { ticketNumber: "", ticket: {} };
+    // this.handleClick = this.handleClick.bind(this);
+  }
+
+  state = {
+    ticketNumber: '',
+    ticket: {}
+  }
+
+  handleChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value })
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Lottery System</h1>
+        <form onSubmit={this.checkTicket}>
+          <label>Ticket Number:</label>
+          <input type="text" name="ticketNumber" value={this.state.ticketNumber} onChange={this.handleChange}></input>
+          <input type="submit" value="Submit"></input>
+        </form>
+      </div>)
+  }
+
+  checkTicket = (e) => {
+    e.preventDefault();
+    //   fmt.Println("Enter ticket number: ")
+    // ticketNumber, _ := reader.ReadString('\n')
+    // ticketNumber = strings.TrimRight(ticketNumber, "\n")
+    // ticket := makeRequest(GET, serverLocation+"ticket/"+ticketNumber) // Get ticket
+    // if len(ticket) >= 1 {
+    // 	fmt.Println("Ticket found :")
+    // 	printTickets(ticket)
+    // }
+    console.log(this.state.ticketNumber)
+
+    const Http = new XMLHttpRequest();
+    const url = 'https://localhost:8080/ticket/'//+this.state.ticketNumber;
+    Http.open("GET", url);
+    Http.send();
     
-    
-    // This binding is necessary to make `this` work in the callback
-        this.handleClick = this.handleClick.bind(this);
-
-        // ReactDOM.render(<App />, document.getElementById('root'))
-    }
-
-  
-    handleClick() {
-    //   this.setState(state => ({
-    //     isToggleOn: !state.isToggleOn
-    //   }));
-    }
-  
-    render() {
-      return  (
-        <div>
-            <h1>Lottery System</h1>
-            <form onSubmit={this.checkTicket}>
-                <label>Ticket Number:</label>
-                <input type="text" id="lname" name="lname"></input>
-                <input type="submit" value="Submit"></input>
-            </form>
-        </div>)
-    }
-
-    checkTicket(e) {
-        e.preventDefault();
-        console.log('The link was clicked.');
-        console.log(e)
+    Http.onreadystatechange = (e) => {
+      console.log(e)
+      console.log(Http.responseText)
     }
   }
-  
-  ReactDOM.render(<App />, document.getElementById('root'))
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))
