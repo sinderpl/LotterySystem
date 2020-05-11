@@ -220,9 +220,9 @@ func calculateLineResult(line Line) int {
 	for x := 1; x < len(line.Values); x++ {
 		total += line.Values[x]
 		if line.Values[x] != firstValue {
-			
+
 			areSame = false
-		} else { 
+		} else {
 			areTrailingUnique = false
 		}
 	}
