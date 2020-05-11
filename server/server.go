@@ -37,8 +37,7 @@ var server *http.Server
 
 //Main runner
 func main() {
-	//Randomise functions are seeded with current time
-	//to guarantee randomness
+	//Randomise functions are seeded with current time to guarantee randomness
 	rand.Seed(time.Now().UnixNano())
 
 	//Test ticket
@@ -221,9 +220,9 @@ func calculateLineResult(line Line) int {
 	for x := 1; x < len(line.Values); x++ {
 		total += line.Values[x]
 		if line.Values[x] != firstValue {
-			
+
 			areSame = false
-		} else { 
+		} else {
 			areTrailingUnique = false
 		}
 	}
