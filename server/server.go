@@ -116,7 +116,7 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Ticket does not exist"))
 		return
 	} else {
@@ -132,18 +132,18 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	linesString := parameters["lines"]
 	lineNum, err := strconv.Atoi(linesString)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotAcceptable)
 		w.Write([]byte("Invalid amount of lines"))
 		return
 	}
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Ticket does not exist"))
 		return
 	} else {
 		if ticket.IsChecked == true {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte("Ticket status has been checked, no changes can be made"))
 			return
 		} else {
@@ -162,7 +162,7 @@ func GetTicketStatus(w http.ResponseWriter, r *http.Request) {
 	ticketID := parameters["id"]
 	ticket := findTicket(ticketID)
 	if ticket == nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Ticket does not exist"))
 		return
 	} else {
@@ -172,7 +172,7 @@ func GetTicketStatus(w http.ResponseWriter, r *http.Request) {
 				result := calculateLineResult(value)
 				ticket.Lines[index].Result = result
 			}
-			sort.Sort(ByResult(ticket.Lines))
+			sort.Sort(ByResult(ticket.Lines)) //#TODO check if this modifies the original, otherwise it will be returned without being sorted
 			ticket.IsChecked = true
 		}
 		json.NewEncoder(w).Encode(([...]Ticket{*ticket}))
@@ -221,8 +221,9 @@ func calculateLineResult(line Line) int {
 	for x := 1; x < len(line.Values); x++ {
 		total += line.Values[x]
 		if line.Values[x] != firstValue {
+			
 			areSame = false
-		} else {
+		} else { 
 			areTrailingUnique = false
 		}
 	}
