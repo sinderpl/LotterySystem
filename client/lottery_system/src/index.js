@@ -18,26 +18,18 @@ import ReactDOM from 'react-dom';
 
 
 
-class TicketChecker extends React.Component {
-
-
-    constructor(props) {
-        super(props);
-        let formElement = (
-            <div>
-                <h1>Lottery System</h1>
-                <form onSubmit={this.checkTicket}>
-                    <label>Ticket Number:</label>
-                    <input type="text" id="lname" name="lname"></input>
-                    <input type="submit" value="Submit"></input>
-                </form>
-            </div>)
-        this.ticket = { ticketNumber: "", ticket: {} };
-
-        ReactDOM.render(formElement, document.getElementById('root'));
-
-        // This binding is necessary to make `this` work in the callback
+class App extends React.Component {
+  
+  constructor(props) {
+    super(props);
+        
+    this.ticket = { ticketNumber: "", ticket: {} };
+    
+    
+    // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+
+        // ReactDOM.render(<App />, document.getElementById('root'))
     }
 
   
@@ -48,11 +40,15 @@ class TicketChecker extends React.Component {
     }
   
     render() {
-      return (
-        <button onClick={this.handleClick}>
-          {this.state.isToggleOn ? 'ON' : 'OFF'}
-        </button>
-      );
+      return  (
+        <div>
+            <h1>Lottery System</h1>
+            <form onSubmit={this.checkTicket}>
+                <label>Ticket Number:</label>
+                <input type="text" id="lname" name="lname"></input>
+                <input type="submit" value="Submit"></input>
+            </form>
+        </div>)
     }
 
     checkTicket(e) {
@@ -61,3 +57,5 @@ class TicketChecker extends React.Component {
         console.log(e)
     }
   }
+  
+  ReactDOM.render(<App />, document.getElementById('root'))
