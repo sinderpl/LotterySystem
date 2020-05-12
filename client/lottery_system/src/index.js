@@ -5,7 +5,6 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    // this.handleClick = this.handleClick.bind(this);
   }
 
   state = {
@@ -31,14 +30,6 @@ class App extends React.Component {
 
   checkTicket = (e) => {
     e.preventDefault();
-    //   fmt.Println("Enter ticket number: ")
-    // ticketNumber, _ := reader.ReadString('\n')
-    // ticketNumber = strings.TrimRight(ticketNumber, "\n")
-    // ticket := makeRequest(GET, serverLocation+"ticket/"+ticketNumber) // Get ticket
-    // if len(ticket) >= 1 {
-    // 	fmt.Println("Ticket found :")
-    // 	printTickets(ticket)
-    // }
     console.log(this.state.ticketNumber)
 
     const Http = new XMLHttpRequest();
